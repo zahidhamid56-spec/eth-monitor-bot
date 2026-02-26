@@ -5,3 +5,4 @@ python-telegram-bot==20.8
 apscheduler==3.10.4
 colorama==0.4.6
 eth-utils==4.1.1
+flask==3.0.3
