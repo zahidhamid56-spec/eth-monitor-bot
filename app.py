@@ -27,55 +27,30 @@ class Bot:
         self.telegram_chat = TELEGRAM_CHAT
         self.message_count = 0
         self.start_time = datetime.datetime.now()
-        print("✅ Bot created successfully")
+        print("✅ Bot created")
     
     def send_telegram(self, text):
         if not self.telegram_token or not self.telegram_chat:
-            print("❌ Telegram credentials missing")
-            return False
-        
+            print("❌ Telegram missing")
+            return
         try:
             url = f"https://api.telegram.org/bot{self.telegram_token}/sendMessage"
-            payload = {
+            requests.post(url, json={
                 'chat_id': self.telegram_chat,
                 'text': text,
                 'parse_mode': 'HTML'
-            }
-            response = requests.post(url, json=payload, timeout=10)
-            
-            if response.status_code == 200:
-                print("✅ Telegram message sent")
-                self.message_count += 1
-                return True
-            else:
-                print(f"❌ Telegram error: {response.status_code}")
-                return False
+            })
+            print("✅ Message sent")
+            self.message_count += 1
         except Exception as e:
-            print(f"❌ Telegram exception: {e}")
-            return False
+            print(f"❌ Error: {e}")
     
     def run(self):
-        print("🔄 Bot main loop started")
-        
-        self.send_telegram("🚀 <b>Bot Started on Railway!</b>")
-        
-        counter = 1
+        print("🔄 Bot running")
+        self.send_telegram("🚀 Bot started on Railway!")
         while True:
-            try:
-                time.sleep(300)
-                
-                heartbeat = f"""
-⏰ <b>Bot Heartbeat #{counter}</b>
-🕐 Time: {datetime.datetime.now().strftime('%H:%M:%S')}
-📊 Messages sent: {self.message_count}
-<i>Bot is running normally</i>
-"""
-                self.send_telegram(heartbeat)
-                counter += 1
-                
-            except Exception as e:
-                print(f"❌ Loop error: {e}")
-                time.sleep(60)
+            time.sleep(300)
+            self.send_telegram(f"❤️ Heartbeat #{self.message_count}")
 
 bot = Bot()
 thread = threading.Thread(target=bot.run, daemon=True)
@@ -83,27 +58,12 @@ thread.start()
 
 @app.route('/')
 def home():
-    return jsonify({
-        'status': 'ok',
-        'bot': 'running',
-        'messages': bot.message_count,
-        'time': str(datetime.datetime.now())
-    })
+    return jsonify({'status': 'ok', 'messages': bot.message_count})
 
 @app.route('/health')
 def health():
     return jsonify({'status': 'healthy'}), 200
 
-@app.route('/debug')
-def debug():
-    return jsonify({
-        'alchemy': '✅' if ALCHEMY_KEY else '❌',
-        'telegram_token': '✅' if TELEGRAM_TOKEN else '❌',
-        'telegram_chat': '✅' if TELEGRAM_CHAT else '❌',
-        'messages': bot.message_count
-    })
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
-    print(f"🌐 Starting Flask on port {port}")
     app.run(host='0.0.0.0', port=port)
