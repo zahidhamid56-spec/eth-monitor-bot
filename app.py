@@ -30,7 +30,6 @@ class Bot:
         print("✅ Bot created successfully")
     
     def send_telegram(self, text):
-        """Send message to Telegram"""
         if not self.telegram_token or not self.telegram_chat:
             print("❌ Telegram credentials missing")
             return False
@@ -56,17 +55,14 @@ class Bot:
             return False
     
     def run(self):
-        """Main bot loop"""
         print("🔄 Bot main loop started")
         
-        # Send startup message
         self.send_telegram("🚀 <b>Bot Started on Railway!</b>")
         
-        # Heartbeat loop
         counter = 1
         while True:
             try:
-                time.sleep(300) # 5 minutes
+                time.sleep(300)
                 
                 heartbeat = f"""
 ⏰ <b>Bot Heartbeat #{counter}</b>
@@ -81,10 +77,7 @@ class Bot:
                 print(f"❌ Loop error: {e}")
                 time.sleep(60)
 
-# Create bot instance
 bot = Bot()
-
-# Start bot thread
 thread = threading.Thread(target=bot.run, daemon=True)
 thread.start()
 
